@@ -1,7 +1,7 @@
 if (typeof Buffer == "undefined") Buffer = require("buffer/").Buffer;
 if (typeof XMLHttpRequest == "undefined") XMLHttpRequest = require('xhr2');
 const BN = require("bignumber.js");
-const 
+const
 //CLI below
 defaultProtocol = "PsBabyM1eUXZseaJdmXFApDSBqj8YBfwELoxZHHW77EMcAbbwAS",
 defaultProvider = "https://mainnet.tezrpc.me/",
@@ -17,24 +17,24 @@ prefix = {
   tz2: new Uint8Array([6, 161, 161]),
   tz3: new Uint8Array([6, 161, 164]),
   KT: new Uint8Array([2,90,121]),
-  
-  
+
+
   edpk: new Uint8Array([13, 15, 37, 217]),
   edsk2: new Uint8Array([13, 15, 58, 7]),
   spsk: new Uint8Array([17, 162, 224, 201]),
   p2sk: new Uint8Array([16,81,238,189]),
-  
+
   sppk: new Uint8Array([3, 254, 226, 86]),
   p2pk: new Uint8Array([3, 178, 139, 127]),
-  
+
   edesk: new Uint8Array([7, 90, 60, 179, 41]),
-  
+
   edsk: new Uint8Array([43, 246, 78, 7]),
   edsig: new Uint8Array([9, 245, 205, 134, 18]),
   spsig1: new Uint8Array([13, 115, 101, 19, 63]),
   p2sig: new Uint8Array([54, 240, 44, 52]),
   sig: new Uint8Array([4, 130, 43]),
-  
+
   Net: new Uint8Array([87, 82, 0]),
   nce: new Uint8Array([69, 220, 169]),
   b: new Uint8Array([1,52]),
@@ -267,11 +267,11 @@ crypto = {
     if (typeof esk == 'undefined') return false;
     if (typeof password == 'undefined') return false;
     if (typeof window.crypto.subtle == 'undefined') return false;
-    
+
     const esb = utility.b58cdecode(esk, prefix.edesk);
     const salt = esb.slice(0, 8);
     const esm = esb.slice(8);
-    
+
     return window.crypto.subtle.importKey('raw', new TextEncoder('utf-8').encode(password), {name: 'PBKDF2'}, false, ['deriveBits']).then(function(key){
       return window.crypto.subtle.deriveBits(
         {
@@ -281,7 +281,7 @@ crypto = {
           hash: {name: 'SHA-512'}
         },
         key,
-        256 
+        256
       );
     }).then(function(key){
       const kp = library.sodium.crypto_sign_seed_keypair(library.sodium.crypto_secretbox_open_easy(esm, new Uint8Array(24), new Uint8Array(key)));
@@ -380,7 +380,7 @@ node = {
     if (typeof o === 'undefined') {
       if (typeof t === 'undefined') {
         t = "GET";
-      } else 
+      } else
         o = {};
     } else {
       if (typeof t === 'undefined')
@@ -416,7 +416,7 @@ node = {
               if (node.debugMode)
                 console.log(e, o, http.responseText);
               reject(http.responseText);
-            } else {  
+            } else {
               if (node.debugMode)
                 console.log(e, o, http.statusText);
               reject(http.statusText);
@@ -430,7 +430,7 @@ node = {
         };
         if (t == 'POST'){
           http.setRequestHeader("Content-Type", "application/json");
-          http.send(JSON.stringify(o));        
+          http.send(JSON.stringify(o));
         } else {
           http.send();
         }
@@ -471,7 +471,7 @@ rpc = {
   getHeadHash: function () {
     return node.query("/chains/main/blocks/head/hash");
   },
-	
+
 	getBallotList: function(){
 		return node.query("/chains/main/blocks/head/votes/ballot_list");
 	},
@@ -493,7 +493,7 @@ rpc = {
 	getCurrentQuorum: function(){
 		return node.query("/chains/main/blocks/head/votes/current_quorum ");
 	},
-	
+
 	awaitOperation : function(hash, interval, timeout){
 		if (typeof interval == 'undefined') '30';
 		if (typeof timeout == 'undefined') '180';
@@ -570,7 +570,7 @@ rpc = {
           if (typeof ops[i].gas_limit == 'undefined') ops[i].gas_limit = "0";
           if (typeof ops[i].storage_limit == 'undefined') ops[i].storage_limit = "0";
           ops[i].counter = (counters[keys.pkh]++).toString();
-          
+
            ops[i].fee = ops[i].fee.toString();
            ops[i].gas_limit = ops[i].gas_limit.toString();
            ops[i].storage_limit = ops[i].storage_limit.toString();
@@ -619,7 +619,7 @@ rpc = {
           if (typeof f[i].contents[j].metadata.operation_result != 'undefined' && f[i].contents[j].metadata.operation_result.status == "failed")
             errors = errors.concat(f[i].contents[j].metadata.operation_result.errors);
         }
-      }        
+      }
       if (errors.length) throw {error: "Operation Failed", errors:errors};
       return node.query('/injection/operation', sopbytes).then(function(r){
         return r;
@@ -643,7 +643,7 @@ rpc = {
       };
     });
   },
-  
+
 	account: function (keys, amount, spendable, delegatable, delegate, fee, gasLimit, storageLimit) {
 		if (typeof gasLimit == 'undefined') gasLimit = '10000';
 		if (typeof storageLimit == 'undefined') storageLimit = '257';
@@ -724,7 +724,7 @@ rpc = {
     };
     return rpc.sendOperation(keys.pkh, operation, keys);
   },
-  
+
 	activate: function (pkh, secret) {
     var operation = {
       "kind": "activate_account",
@@ -733,7 +733,7 @@ rpc = {
     };
     return rpc.sendOperation(pkh, operation, false);
   },
-  
+
 	typecheckCode(code) {
     var _code = utility.ml2mic(code);
     return node.query("/chains/main/blocks/head/helpers/scripts/typecheck_code", {program : _code, gas : "10000"});
@@ -783,7 +783,7 @@ contract = {
     if (typeof storageLimit == 'undefined') storageLimit = '10000';
     return rpc.originate(keys, amount, code, init, spendable, delegatable, delegate, fee, gasLimit, storageLimit);
   },
-  send: function (contract, from, keys, amount, parameter, fee, gasLimit, storageLimit) {      
+  send: function (contract, from, keys, amount, parameter, fee, gasLimit, storageLimit) {
     if (typeof gasLimit == 'undefined') gasLimit = '2000';
     if (typeof storageLimit == 'undefined') storageLimit = '0';
     return rpc.transfer(from, keys, contract, amount, fee, parameter, gasLimit, storageLimit);
@@ -793,7 +793,7 @@ contract = {
   },
   storage: function (contract) {
     return new Promise(function (resolve, reject) {
-      eztz.node.query("/chains/main/blocks/head/context/contracts/" + contract + 
+      eztz.node.query("/chains/main/blocks/head/context/contracts/" + contract +
       "/storage").then(function (r) {
         resolve(r);
       }).catch(function (e) {
@@ -819,26 +819,14 @@ contract = {
   },
 };
 tezos = {
-  forge : function(head, opOb, validateLocalForge){
-    if (typeof validateLocalForge == 'undefined') validateLocalForge = true;
-		
-    return node.query('/chains/'+head.chain_id+'/blocks/'+head.hash+'/helpers/forge/operations', opOb).then(function(remoteForgedBytes){
-      var localForgedBytes;
-      localForgedBytes = utility.buf2hex(utility.b58cdecode(opOb.branch, prefix.b));
-      for(var i = 0; i < opOb.contents.length; i++){
-        localForgedBytes += forgeOp(opOb.contents[i]);
-      }
-      
-      opOb.protocol = head.protocol;
-      if (localForgedBytes == remoteForgedBytes) {
-        return {
-          opbytes : localForgedBytes,
-          opOb : opOb
-        };
-      } else {
-        throw "Forge validation error - local and remote bytes don't match";
-      }
-    })
+  forge : function(head, opOb){
+        return node.query('/chains/'+head.chain_id+'/blocks/'+head.hash+'/helpers/forge/operations', opOb).then(function(forgedBytes){
+            opOb.protocol = head.protocol;
+            return {
+                opbytes : forgedBytes,
+                opOb : opOb
+            };
+        })
   },
   encodeRawBytes : function (input){
       const rec = function(input){
@@ -882,12 +870,12 @@ tezos = {
             const positive_mark = num.toString(2)[0] === '-' ? '1' : '0';
             const binary = num.toString(2).replace('-', '');
             const pad = binary.length <= 6 ? 6 : ((binary.length - 6) % 7 ? binary.length + 7 - (binary.length - 6) % 7 : binary.length);
-            
+
             const splitted = binary.padStart(pad, '0').match(/\d{6,7}/g);
             const reversed = splitted.reverse();
 
             reversed[0] = positive_mark + reversed[0];
-            const num_hex = reversed.map(function(x, i){ 
+            const num_hex = reversed.map(function(x, i){
               return parseInt((i === reversed.length - 1 ? '0' : '1') + x, 2)
               .toString(16)
               .padStart(2, '0')
@@ -915,7 +903,7 @@ tezos = {
   },
   decodeRawBytes : function (bytes) {
     bytes = bytes.toUpperCase()
-    
+
     let index = 0
 
     const read = function(len) { return bytes.slice(index, index + len) };
@@ -923,7 +911,7 @@ tezos = {
     const rec = function(){
       const b = read(2)
       const prim = prim_mapping[b]
-      
+
       if (prim instanceof Object) {
 
         index += 2
@@ -942,7 +930,7 @@ tezos = {
 
           const string_hex_lst = read(annots_len).match(/[\dA-F]{2}/g)
           index += annots_len
-          
+
           if (string_hex_lst) {
             const string_bytes = new Uint8Array(string_hex_lst.map(function(x) { return parseInt(x, 16)}))
             const string_result = new TextDecoder('utf-8').decode(string_bytes)
@@ -1033,7 +1021,7 @@ trezor = {
 		var bytes = utility.b58cdecode(address, pp);
 		if (tag == 1) {
 			bytes = utility.mergebuf(bytes, [0])
-		} else {					
+		} else {
 			bytes = utility.mergebuf([curve], bytes)
 		}
 		return {
@@ -1048,7 +1036,7 @@ trezor = {
 		var bytes = utility.b58cdecode(address, pp);
 		if (tag == 1) {
 			bytes = utility.mergebuf(bytes, [0])
-		} else {					
+		} else {
 			bytes = utility.mergebuf([curve], bytes)
 		}
     hex = utility.buf2hex(utility.mergebuf([tag], bytes));
@@ -1237,17 +1225,17 @@ var op_mapping_reverse = (function(){
 })()
 
 var prim_mapping = {
-  '00': 'int',    
-  '01': 'string',             
-  '02': 'seq',             
-  '03': {name: 'prim', len: 0, annots: false},          
+  '00': 'int',
+  '01': 'string',
+  '02': 'seq',
+  '03': {name: 'prim', len: 0, annots: false},
   '04': {name: 'prim', len: 0, annots: true},
-  '05': {name: 'prim', len: 1, annots: false},           
-  '06': {name: 'prim', len: 1, annots: true},   
-  '07': {name: 'prim', len: 2, annots: false},          
-  '08': {name: 'prim', len: 2, annots: true},  
+  '05': {name: 'prim', len: 1, annots: false},
+  '06': {name: 'prim', len: 1, annots: true},
+  '07': {name: 'prim', len: 2, annots: false},
+  '08': {name: 'prim', len: 2, annots: true},
   '09': {name: 'prim', len: 3, annots: true},
-  '0A': 'bytes'                  
+  '0A': 'bytes'
 }
 var prim_mapping_reverse = {
   [0]: {
@@ -1289,8 +1277,8 @@ function forgeOp(op){
   var fop;
   fop = eztz.utility.buf2hex(new Uint8Array([forgeOpTags[op.kind]]));
   switch (forgeOpTags[op.kind]) {
-    case 0: 
-    case 1: 
+    case 0:
+    case 1:
       fop += eztz.utility.buf2hex(toBytesInt32(op.level));
       if (forgeOpTags[op.kind] == 0) break;
       fop += op.nonce;
@@ -1304,8 +1292,8 @@ function forgeOp(op){
       fop += eztz.utility.buf2hex(eztz.utility.b58cdecode(op.pkh, eztz.prefix.tz1));
       fop += op.secret;
       if (forgeOpTags[op.kind] == 4) break;
-    case 5: 
-    case 6: 
+    case 5:
+    case 6:
       fop += forgePublicKeyHash(op.source);
       fop += eztz.utility.buf2hex(toBytesInt32(op.period));
       if (forgeOpTags[op.kind] == 5) {
@@ -1316,10 +1304,10 @@ function forgeOp(op){
         fop += (op.ballot == "yay" ? "00" : (op.ballot == "nay" ? "01" : "02"));
         break;
       }
-    case 7: 
-    case 8: 
-    case 9: 
-    case 10: 
+    case 7:
+    case 8:
+    case 9:
+    case 10:
       fop += forgeAddress(op.source);
       fop += forgeZarith(op.fee);
       fop += forgeZarith(op.counter);
@@ -1362,10 +1350,10 @@ function forgeOp(op){
         }
       }
     break;
-    case 107: 
-    case 108: 
-    case 109: 
-    case 110: 
+    case 107:
+    case 108:
+    case 109:
+    case 110:
       fop += forgePublicKeyHash(op.source);
       fop += forgeZarith(op.fee);
       fop += forgeZarith(op.counter);
@@ -1553,7 +1541,7 @@ protocolDefinitions['PsBabyM1'].rpc.prepareOperation = function(from, operation,
         if (typeof ops[i].gas_limit == 'undefined') ops[i].gas_limit = "0";
         if (typeof ops[i].storage_limit == 'undefined') ops[i].storage_limit = "0";
         ops[i].counter = (counters[from]++).toString();
-        
+
          ops[i].fee = ops[i].fee.toString();
          ops[i].gas_limit = ops[i].gas_limit.toString();
          ops[i].storage_limit = ops[i].storage_limit.toString();
