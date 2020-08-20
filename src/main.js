@@ -540,7 +540,7 @@ rpc = {
     for(let i = 0; i < ops.length; i++){
       if (['transaction','origination','delegation'].indexOf(ops[i].kind) >= 0){
         requiresReveal = true;
-        promises.push(rpc.getCounter(keys.pkh));
+        if(!operation.counter) promises.push(rpc.getCounter(keys.pkh));
         promises.push(rpc.getManager(keys.pkh));
         break;
       }
@@ -557,7 +557,7 @@ rpc = {
           storage_limit: 0
         });
       }
-      counter = parseInt(f[1]) + 1;
+      if(!operation.counter) counter = parseInt(f[1]) + 1;
       if (typeof counters[keys.pkh] == 'undefined') counters[keys.pkh] = counter;
 			if (counter > counters[keys.pkh]) counters[keys.pkh] = counter;
 			//fix reset bug temp
