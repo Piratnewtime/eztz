@@ -540,14 +540,14 @@ rpc = {
     for(let i = 0; i < ops.length; i++){
       if (['transaction','origination','delegation'].indexOf(ops[i].kind) >= 0){
         requiresReveal = true;
-        if(!operation.counter) promises.push(rpc.getCounter(keys.pkh));
+        //if(!ops[i].counter) promises.push(rpc.getCounter(keys.pkh));
         promises.push(rpc.getManager(keys.pkh));
         break;
       }
     }
     return Promise.all(promises).then(function (f) {
       head = f[0];
-      if (requiresReveal && keys && typeof f[2].key == 'undefined'){
+      if (requiresReveal && keys && typeof f[1].key == 'undefined'){
         ops.unshift({
           kind : "reveal",
           fee : revealFee,
@@ -557,11 +557,11 @@ rpc = {
           storage_limit: 0
         });
       }
-      if(!operation.counter) counter = parseInt(f[1]) + 1;
-      if (typeof counters[keys.pkh] == 'undefined') counters[keys.pkh] = counter;
-			if (counter > counters[keys.pkh]) counters[keys.pkh] = counter;
+      //if(!ops[i].counter) ops[i].counter = parseInt(f[1]) + 1;
+      //if (typeof counters[keys.pkh] == 'undefined') counters[keys.pkh] = counter;
+		//	if (counter > counters[keys.pkh]) counters[keys.pkh] = counter;
 			//fix reset bug temp
-			counters[keys.pkh] = counter;
+		//	counters[keys.pkh] = counter;
       for(let i = 0; i < ops.length; i++){
         if (['proposals','ballot','transaction','origination','delegation'].indexOf(ops[i].kind) >= 0){
           if (typeof ops[i].source == 'undefined') ops[i].source = keys.pkh;
@@ -569,7 +569,7 @@ rpc = {
         if (['reveal', 'transaction','origination','delegation'].indexOf(ops[i].kind) >= 0) {
           if (typeof ops[i].gas_limit == 'undefined') ops[i].gas_limit = "0";
           if (typeof ops[i].storage_limit == 'undefined') ops[i].storage_limit = "0";
-          ops[i].counter = (counters[keys.pkh]++).toString();
+           //ops[i].counter = (counters[keys.pkh]++).toString();
 
            ops[i].fee = ops[i].fee.toString();
            ops[i].gas_limit = ops[i].gas_limit.toString();
@@ -1511,14 +1511,14 @@ protocolDefinitions['PsBabyM1'].rpc.prepareOperation = function(from, operation,
   for(let i = 0; i < ops.length; i++){
     if (['transaction','origination','delegation'].indexOf(ops[i].kind) >= 0){
       requiresReveal = true;
-      promises.push(rpc.getCounter(from));
+      //promises.push(rpc.getCounter(from));
       promises.push(rpc.getManager(from));
       break;
     }
   }
   return Promise.all(promises).then(function (f) {
     head = f[0];
-    if (requiresReveal && keys && f[2] === false){
+    if (requiresReveal && keys && f[1] === false){
       ops.unshift({
         kind : "reveal",
         fee : revealFee,
@@ -1528,11 +1528,11 @@ protocolDefinitions['PsBabyM1'].rpc.prepareOperation = function(from, operation,
         storage_limit: 0
       });
     }
-    counter = parseInt(f[1]) + 1;
-    if (typeof counters[from] == 'undefined') counters[from] = counter;
-    if (counter > counters[from]) counters[from] = counter;
+    //counter = parseInt(f[1]) + 1;
+    //if (typeof counters[from] == 'undefined') counters[from] = counter;
+    //if (counter > counters[from]) counters[from] = counter;
     //fix reset bug temp
-    counters[from] = counter;
+    //counters[from] = counter;
     for(let i = 0; i < ops.length; i++){
       if (['proposals','ballot','transaction','origination','delegation'].indexOf(ops[i].kind) >= 0){
         if (typeof ops[i].source == 'undefined') ops[i].source = from;
@@ -1540,7 +1540,7 @@ protocolDefinitions['PsBabyM1'].rpc.prepareOperation = function(from, operation,
       if (['reveal', 'transaction','origination','delegation'].indexOf(ops[i].kind) >= 0) {
         if (typeof ops[i].gas_limit == 'undefined') ops[i].gas_limit = "0";
         if (typeof ops[i].storage_limit == 'undefined') ops[i].storage_limit = "0";
-        ops[i].counter = (counters[from]++).toString();
+        //ops[i].counter = (counters[from]++).toString();
 
          ops[i].fee = ops[i].fee.toString();
          ops[i].gas_limit = ops[i].gas_limit.toString();
