@@ -1500,7 +1500,8 @@ protocolDefinitions['PsBabyM1'] = protocolDefinitions['Pt24m4xi'];
 protocolDefinitions['PsBabyM1'].rpc.prepareOperation = function(from, operation, keys, revealFee){
   if (typeof keys == 'undefined') keys = false;
   if (typeof revealFee == 'undefined') revealFee = "1269";
-  var hash, counter, pred_block, sopbytes, returnedContracts, opOb;
+  var hash, pred_block, sopbytes, returnedContracts, opOb;
+  var counter = operation.counter;
   var promises = [], requiresReveal=false;
   promises.push(node.query('/chains/main/blocks/head/header'));
   if (Array.isArray(operation)) {
@@ -1545,7 +1546,8 @@ protocolDefinitions['PsBabyM1'].rpc.prepareOperation = function(from, operation,
          ops[i].fee = ops[i].fee.toString();
          ops[i].gas_limit = ops[i].gas_limit.toString();
          ops[i].storage_limit = ops[i].storage_limit.toString();
-         ops[i].counter = ops[i].counter.toString();
+         ops[i].counter = counter.toString();
+		 if (ops[i].kind == 'reveal') counter++;
       }
     }
     opOb = {
