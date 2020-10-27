@@ -1,5 +1,6 @@
+const axios = require('axios');
 if (typeof Buffer == "undefined") Buffer = require("buffer/").Buffer;
-if (typeof XMLHttpRequest == "undefined") XMLHttpRequest = require('xhr2');
+//if (typeof XMLHttpRequest == "undefined") XMLHttpRequest = require('xhr2');
 const BN = require("bignumber.js");
 const
 //CLI below
@@ -376,67 +377,94 @@ node = {
   resetProtocol: function () {
     node.currentProtocol = defaultProtocol;
   },
-  query: function (e, o, t) {
-    if (typeof o === 'undefined') {
-      if (typeof t === 'undefined') {
-        t = "GET";
-      } else
-        o = {};
-    } else {
-      if (typeof t === 'undefined')
-        t = 'POST';
-    }
-    return new Promise(function (resolve, reject) {
-      try {
-        const http = new XMLHttpRequest();
-        http.open(t, node.activeProvider + e, node.async);
-        if (node.debugMode)
-          console.log("Node call", e, o);
-        http.onload = function () {
-          if (http.status === 200) {
-            if (http.responseText) {
-              let r;
-              if (http.responseText.trim() == "null") {
-                r = false;
-              } else {
-                r = JSON.parse(http.responseText);
-              }
-							if (node.debugMode) console.log("Node response", e, o, r);
-              if (r && typeof r.error !== 'undefined') {
-                reject(r.error);
-              } else {
-                if (r && typeof r.ok !== 'undefined') r = r.ok;
-                resolve(r);
-              }
-            } else {
-              reject("Empty response returned");
+  query: function (url, obj = null, method = 'GET') {
+
+    url = node.activeProvider + url;
+
+    if(obj && method == 'GET') method = 'POST';
+
+    return new Promise(async function (resolve, reject) {
+        try{
+            let data = (await axios({
+                method,
+                url,
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                data: JSON.stringify(obj)
+            })).data;
+            if(data.error){
+                reject(data.error);
+            }else{
+                if(typeof data.ok !== 'undefined') data = data.ok;
+                resolve(data);
             }
-          } else {
-            if (http.responseText) {
-              if (node.debugMode)
-                console.log(e, o, http.responseText);
-              reject(http.responseText);
-            } else {
-              if (node.debugMode)
-                console.log(e, o, http.statusText);
-              reject(http.statusText);
-            }
-          }
-        };
-        http.onerror = function () {
-          if (node.debugMode)
-            console.log(e, o, http.responseText);
-          reject(http.statusText);
-        };
-        if (t == 'POST'){
-          http.setRequestHeader("Content-Type", "application/json");
-          http.send(JSON.stringify(o));
-        } else {
-          http.send();
+        }catch(e){
+            reject(e.responseText || e.message || (e.data && e.data.error) || e.statusText || e);
         }
-      } catch(e) { reject(e)}
-    });
+    })
   }
+  // query: function (e, o, t) {
+  //   if (typeof o === 'undefined') {
+  //     if (typeof t === 'undefined') {
+  //       t = "GET";
+  //     } else
+  //       o = {};
+  //   } else {
+  //     if (typeof t === 'undefined')
+  //       t = 'POST';
+  //   }
+  //   return new Promise(function (resolve, reject) {
+  //     try {
+  //       const http = new XMLHttpRequest();
+  //       http.open(t, node.activeProvider + e, node.async);
+  //       if (node.debugMode)
+  //         console.log("Node call", e, o);
+  //       http.onload = function () {
+  //         if (http.status === 200) {
+  //           if (http.responseText) {
+  //             let r;
+  //             if (http.responseText.trim() == "null") {
+  //               r = false;
+  //             } else {
+  //               r = JSON.parse(http.responseText);
+  //             }
+  // 			 if (node.debugMode) console.log("Node response", e, o, r);
+  //             if (r && typeof r.error !== 'undefined') {
+  //               reject(r.error);
+  //             } else {
+  //               if (r && typeof r.ok !== 'undefined') r = r.ok;
+  //               resolve(r);
+  //             }
+  //           } else {
+  //             reject("Empty response returned");
+  //           }
+  //         } else {
+  //           if (http.responseText) {
+  //             if (node.debugMode)
+  //               console.log(e, o, http.responseText);
+  //             reject(http.responseText);
+  //           } else {
+  //             if (node.debugMode)
+  //               console.log(e, o, http.statusText);
+  //             reject(http.statusText);
+  //           }
+  //         }
+  //       };
+  //       http.onerror = function () {
+  //         if (node.debugMode)
+  //           console.log(e, o, http.responseText);
+  //         reject(http.statusText);
+  //       };
+  //       if (t == 'POST'){
+  //         http.setRequestHeader("Content-Type", "application/json");
+  //         http.send(JSON.stringify(o));
+  //       } else {
+  //         http.send();
+  //       }
+  //     } catch(e) { reject(e)}
+  //   });
+  // }
 },
 rpc = {
 	call: function (e, d) {
