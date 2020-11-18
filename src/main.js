@@ -392,15 +392,14 @@ node = {
                     "Content-Type": "application/json"
                 },
                 data: JSON.stringify(obj)
-            })).data;
-            if(data.error){
-                reject(data.error);
-            }else{
-                if(typeof data.ok !== 'undefined') data = data.ok;
-                resolve(data);
-            }
+            }));
+			if(data.status != 200){
+				reject(data);
+			}else{
+				resolve(data.data);
+			}
         }catch(e){
-            reject(e.responseText || e.message || (e.data && e.data.error) || e.statusText || e);
+            reject((e.response && e.response.data) || e.responseText || e.message || e.statusText || e);
         }
     })
   }
@@ -1582,6 +1581,7 @@ protocolDefinitions['PsBabyM1'].rpc.prepareOperation = function(from, operation,
       "branch": head.hash,
       "contents": ops
     }
+
     return tezos.forge(head, opOb);
   })
 }
