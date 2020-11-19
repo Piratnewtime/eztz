@@ -1544,9 +1544,10 @@ protocolDefinitions['PsBabyM1'].rpc.prepareOperation = function(from, operation,
       break;
     }
   }
+
   return Promise.all(promises).then(function (f) {
     head = f[0];
-    if (requiresReveal && keys && f[1] === false){
+    if (requiresReveal && keys && !f[1]){
       ops.unshift({
         kind : "reveal",
         fee : revealFee,
